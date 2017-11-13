@@ -10,7 +10,7 @@ with open("sensado.txt", "r") as file:
 try:
     db = MySQLdb.connect(host="localhost",    # your host, usually localhost
                          user="root",         # your username
-                         passwd="..",  # your password
+                         passwd="asdfg123..",  # your password
                          db="SIMP2")        # name of the data base
     cur = db.cursor()
     cur2=db.cursor()
@@ -21,7 +21,7 @@ try:
     db.commit()
     db.close()
     print lines
-    os.system('cp /dev/null /home/lazaax/outpur.txt')
+    # os.system('cp /dev/null /home/lazaax/outpur.txt')
     print "correcto archivo outpur cleaned"
 except Exception as e:
     print "error"

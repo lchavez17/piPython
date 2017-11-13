@@ -1,15 +1,13 @@
-#!/usr/bin/python
 import MySQLdb
 import os
 
-output="~/sensado.txt"
+output="/home/lazaax/sensado.txt"
 try:
     try:
         db = MySQLdb.connect(host="localhost",    # el host
                             user="root",         # tu usuario de base de datos
                             passwd="asdfg123..",  # tu password de base de datos
                             db="SIMP2")        # nombre de base de datos
-
         cur2 = db.cursor()
         cur = db.cursor()
     except Exception as e:
@@ -19,8 +17,12 @@ try:
     indice=1
     num_lineas=1
     while indice<=id_arduino:
-        with open("sensado.txt", "r") as file:
-            lines=file.readlines()[-num_lineas].split('/')
+        try:
+            with open("/home/lazaax/sensado.txt", "r") as file:
+                  lines=file.readlines()[-num_lineas].split('/')
+        except Exception as e:
+            break
+
         if lines[0] == str(indice):
             print lines
             cur.execute("""INSERT INTO mediciones (id_arduino,id_sensor,valor) VALUES(%s,%s,%s)""",(lines[0],lines[1],lines[2]))
@@ -29,10 +31,11 @@ try:
             cur.execute("""INSERT INTO mediciones (id_arduino,id_sensor,valor) VALUES(%s,%s,%s)""",(lines[0],lines[7],lines[8]))
             db.commit()
             indice +=1
-        num_lineas +=1
+        else:
+            num_lineas +=1
     db.close()
     os.system('cp /dev/null '+output)
 
-    print "correcto archivo outpur cleaned"
+    print "correcto archivo output limpio"
 except Exception as e:
     print "error general"
