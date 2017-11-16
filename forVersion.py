@@ -25,7 +25,7 @@ try:
 
     while indice<=id_arduino:
         try:
-            with open("/home/lazaax/sensado.txt", "r") as file:
+            with open("'~/sensado.txt'", "r") as file:
                   lines=file.readlines()[-num_lineas].split('/')
 
         except Exception as e:
