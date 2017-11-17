@@ -1,4 +1,9 @@
 #!/usr/bin/python
+#Script para el proyecto integrador
+#de la facultad de telematica
+#Edson Jimenez
+#Leon Chavez
+#
 import MySQLdb
 import os
 import datetime
