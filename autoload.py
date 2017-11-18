@@ -1,4 +1,9 @@
 #!/usr/bin/python
+#Script para el proyecto integrador
+#de la facultad de telematica
+#Edson Jimenez
+#Leon Chavez
+#
 import MySQLdb
 import os
 import datetime
@@ -30,6 +35,7 @@ try:
 
         except Exception as e:
             num_lineas=1
+            indice+=1
 
         if lines[0] == str(indice):
             print lines
