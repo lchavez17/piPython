@@ -6,7 +6,7 @@
 # Auto cargando arduino
 #
 
-$devName = `lsusb | grep QinHeng | head -1 | awk '{print \$7}'` || die "No hay arduino reconocida\n";
+$time = localtime();
 $devUsb = `ls /dev/ | grep ttyUSB` || die "Arduino no conectada";
 $devPs = `pgrep -f ttyUSB`;
 

@@ -1,3 +1,5 @@
 #!/bin/bash
-
-screen -L output.txt /dev/ttyUSB0
+#Edson Jimenes
+#Leon Chavez
+#
+cat /dev/ttyUSB0 > file.txt

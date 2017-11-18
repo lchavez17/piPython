@@ -35,6 +35,7 @@ try:
 
         except Exception as e:
             num_lineas=1
+            indice+=1
 
         if lines[0] == str(indice):
             print lines
