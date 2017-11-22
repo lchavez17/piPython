@@ -40,8 +40,8 @@ try:
         print valorMedicion
         if valorMedicion < valor_min or valorMedicion > valor_max:
             print "mandar alerta"
-            username = 'simpcolima@gmail.com'
-            password = 'asdfg123..'
+            username = 'correo@gmail.com'
+            password = 'passsw0rd'
             mailsend='simpcolima@gmail.com'
             mailrec= correo
             sensado='4994994'
