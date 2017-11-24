@@ -63,8 +63,8 @@ try:
                     print "valor medicion: " + str(valorMedicion)
                     print "Ubicacion: " + str(arduino_ubicacion)
                     print "_____________________________"
-                    username = 'simpcolima@gmail.com'
-                    password = 'asdfg123..'
+                    username = 'user@gmail.com'
+                    password = 'as..'
                     correo_envia='simpcolima@gmail.com'
                     correo_recive = correo
                     server = smtplib.SMTP('smtp.gmail.com:587')
