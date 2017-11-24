@@ -39,8 +39,9 @@ try:
 
         if lines[0] == str(indice):
             print lines
-            for value in range(1,(len(lines))/2): #for para agregar los sensores y valores..
+            for value in range(1,(len(lines))/2): #for para agregar los sensores y valores.. arreglar esta linea si un trama es mas chica que la otra truna
                 cur.execute("""INSERT INTO mediciones (id_arduino,id_sensor,valor) VALUES(%s,%s,%s)""",(lines[0],lines[sensor],lines[valor]))
+                # print value
                 db.commit()
                 sensor+=2 #valores impares
                 valor+=2 #valores pares

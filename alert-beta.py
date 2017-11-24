@@ -1,65 +1,86 @@
 #!/usr/bin/python
+#Script para el proyecto integrador
+#de la facultad de telematica
+#Edson Jimenez
+#Leon Chavez
+#
 import MySQLdb
 import smtplib
 import os
+import datetime
 
+hora_de_log=datetime.datetime.now()
 
 try:
     db = MySQLdb.connect(host="localhost",    # el host
                         user="simp",         # tu usuario de base de datos
-                        passwd="asdfg123..",  # tu password de base de datos
+                        passwd="simpcolima",  # tu password de base de datos
                         db="SIMP2")        # nombre de base de datos
 
-    cur = db.cursor()
-    #cur2 = db.cursor()
-    cur.execute("""SELECT correo,valor_min,valor_max FROM alertas WHERE id_arduino=1""")
-    # cur.execute("""SELECT valor FROM mediciones WHERE )
-    datos= cur.fetchall()
-    for value in datos:
-        correo =value[0]
-        valor_min = value[1]
-        valor_max = value[2]
-    print correo
-    print valor_min
-    print valor_max
-    cur3 = db.cursor()
-    numeroDeSensores = cur3.execute("""SELECT * FROM sensores""")
-    datosSensor= cur3.fetchall()
-    print datosSensor
-    # for value3 in datosSensor:
-    #     nombreSensor= value3[1]
-    # print numeroDeSensores
-    cur2 = db.cursor()
-    cadena="SELECT valor FROM mediciones WHERE id_sensor ORDER BY id_mediciones ASC LIMIT "
-    cadena+=str(numeroDeSensores)
-    #print cadena
-    cur2.execute(cadena)
-    datos2 = cur2.fetchall()
-    for value2 in datos2:
-        valorMedicion = value2[0]
-        print valorMedicion
-        if valorMedicion < valor_min or valorMedicion > valor_max:
-            print "mandar alerta"
-            username = 'correo@gmail.com'
-            password = 'passsw0rd'
-            mailsend='simpcolima@gmail.com'
-            mailrec= correo
-            sensado='4994994'
-            server = smtplib.SMTP('smtp.gmail.com:587')
-            server.ehlo()
-            server.starttls()
-            server.login(username,password)
-            msg = "\r\n".join([
-              "Subject: Mensaje de Alerta!!!!!",
-              "",
-              "Sensor:"+str(datosSensor)+"valor:" +str(valorMedicion)
-              ])
-            server.sendmail(mailsend,mailrec,msg)
-            server.quit()
+    cur_sensores = db.cursor()
+    numero_de_sensores = cur_sensores.execute("SELECT * FROM sensores")
+    cur_arduinos= db.cursor()
+    numero_de_arduninos = cur_arduinos.execute("SELECT * FROM arduinos")
+    # print "total de arduinos: "+ str(numero_de_arduninos)
+    arduinos_actuales=cur_arduinos.fetchall()
+    for id_arduino in arduinos_actuales:
+        arduino_actual=id_arduino[0]
+        arduino_nombre=id_arduino[1]
+        arduino_ubicacion=id_arduino[2]
+        # print "Arduinos por id: "+ str(arduino_actual)
+        cur_mediciones = db.cursor()
+        sentencia_sql_mediciones="SELECT id_sensor,id_arduino,valor FROM mediciones WHERE id_sensor AND id_arduino="+str(arduino_actual)+" ORDER BY id_mediciones DESC LIMIT "+str(numero_de_sensores)
+        # sentencia_sql_mediciones+=str(numero_de_sensores)
+        cur_mediciones.execute(sentencia_sql_mediciones)
+        valores_sensores = cur_mediciones.fetchall()
+        for valor_mediciones in valores_sensores:
+            sensor=valor_mediciones[0]
+            arduino=valor_mediciones[1]
+            valorMedicion = valor_mediciones[2]
+            # print "sensor:"+str(sensor)
+            # print "arduino: "+str(arduino)
+            # print "valor medicion: " + str(valorMedicion)
+            cur = db.cursor()
+            sentencia_valores_alarmas="SELECT correo,valor_minimo,valor_maximo FROM alarmas_configuracion WHERE id_arduino="+str(arduino)+" AND id_sensor="+str(sensor)
+            cur.execute(sentencia_valores_alarmas)
+            datos_alarmas_conf= cur.fetchall()
+            for alarmas_configuracion in datos_alarmas_conf:
+                correo = alarmas_configuracion[0]
+                valor_min = alarmas_configuracion[1]
+                valor_max = alarmas_configuracion[2]
+                # print "correo de responsable: "+ str(correo)
+                # print "valor minimo: "+ str(valor_min)
+                # print "valor maximo: "+ str(valor_max)
+                if valorMedicion < valor_min or valorMedicion > valor_max:
+                    cur_sensores.execute("SELECT * FROM sensores WHERE id_sensores="+str(sensor))
+                    sensor_actual = cur_sensores.fetchall()
+                    for sensor_capturado in sensor_actual:
+                        sensor_nombre = sensor_capturado[1]
 
-
-
-
-
+                    print "Enviando alarma a "+ str(correo)
+                    print "Arduino: "+ str(arduino)
+                    print "sensor: "+str(sensor_nombre)
+                    print "valor medicion: " + str(valorMedicion)
+                    print "Ubicacion: " + str(arduino_ubicacion)
+                    print "_____________________________"
+                    username = 'simpcolima@gmail.com'
+                    password = 'asdfg123..'
+                    correo_envia='simpcolima@gmail.com'
+                    correo_recive = correo
+                    server = smtplib.SMTP('smtp.gmail.com:587')
+                    server.ehlo()
+                    server.starttls()
+                    server.login(username,password)
+                    msg = "\r\n".join([
+                      "Subject: Mensaje de Alerta!!!!!",
+                      "",
+                      "Alerta!!!! Sensor: "+str(sensor_nombre)+ ", Arduino: "+str(arduino)+", valor: " +str(valorMedicion)+", Ubicado: "+ str(arduino_ubicacion),
+                      str(hora_de_log)
+                      ])
+                    server.sendmail(correo_envia,correo_recive,msg)
+                    server.quit()
+    db.close()
+    print hora_de_log
 except Exception as e:
     raise
+    print e
