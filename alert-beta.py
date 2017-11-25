@@ -72,8 +72,8 @@ try:
                     sentencia_alarma_enviada="UPDATE alarmas_configuracion SET alarma_enviada=1 where id_arduino="+str(arduino)+" and id_sensor="+str(sensor)
                     cur_actualiza_alarma_enviada.execute(sentencia_alarma_enviada)
                     db.commit()
-                    username = 'simpcolima@gmail.com'
-                    password = 'asdfg123..'
+                    username = 'sssa@gmail.com'
+                    password = 'asd..'
                     correo_envia='simpcolima@gmail.com'
                     correo_recive = correo
                     server = smtplib.SMTP('smtp.gmail.com:587')
