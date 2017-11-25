@@ -40,18 +40,20 @@ try:
             # print "sensor:"+str(sensor)
             # print "arduino: "+str(arduino)
             # print "valor medicion: " + str(valorMedicion)
-            cur = db.cursor()
-            sentencia_valores_alarmas="SELECT correo,valor_minimo,valor_maximo FROM alarmas_configuracion WHERE id_arduino="+str(arduino)+" AND id_sensor="+str(sensor)
-            cur.execute(sentencia_valores_alarmas)
-            datos_alarmas_conf= cur.fetchall()
+            cur_alarma = db.cursor()
+            sentencia_valores_alarmas="SELECT correo,valor_minimo,valor_maximo,descripcion,alarma_enviada FROM alarmas_configuracion WHERE id_arduino="+str(arduino)+" AND id_sensor="+str(sensor)
+            cur_alarma.execute(sentencia_valores_alarmas)
+            datos_alarmas_conf= cur_alarma.fetchall()
             for alarmas_configuracion in datos_alarmas_conf:
                 correo = alarmas_configuracion[0]
                 valor_min = alarmas_configuracion[1]
                 valor_max = alarmas_configuracion[2]
+                descripcion = alarmas_configuracion[3]
+                alarma_enviada=alarmas_configuracion[4]
                 # print "correo de responsable: "+ str(correo)
                 # print "valor minimo: "+ str(valor_min)
                 # print "valor maximo: "+ str(valor_max)
-                if valorMedicion < valor_min or valorMedicion > valor_max:
+                if (valorMedicion < valor_min or valorMedicion > valor_max) and alarma_enviada==0:
                     cur_sensores.execute("SELECT * FROM sensores WHERE id_sensores="+str(sensor))
                     sensor_actual = cur_sensores.fetchall()
                     for sensor_capturado in sensor_actual:
@@ -62,9 +64,16 @@ try:
                     print "sensor: "+str(sensor_nombre)
                     print "valor medicion: " + str(valorMedicion)
                     print "Ubicacion: " + str(arduino_ubicacion)
+                    print "Descripcion: " + str(descripcion)
                     print "_____________________________"
-                    username = 'user@gmail.com'
-                    password = 'as..'
+                    cur_insertar_alarma=db.cursor()
+                    cur_insertar_alarma.execute("""INSERT INTO alarmas (id_arduino,nombre_sensor,valor) VALUES(%s,%s,%s)""",(arduino,sensor_nombre,valorMedicion))
+                    cur_actualiza_alarma_enviada=db.cursor()
+                    sentencia_alarma_enviada="UPDATE alarmas_configuracion SET alarma_enviada=1 where id_arduino="+str(arduino)+" and id_sensor="+str(sensor)
+                    cur_actualiza_alarma_enviada.execute(sentencia_alarma_enviada)
+                    db.commit()
+                    username = 'simpcolima@gmail.com'
+                    password = 'asdfg123..'
                     correo_envia='simpcolima@gmail.com'
                     correo_recive = correo
                     server = smtplib.SMTP('smtp.gmail.com:587')
@@ -73,8 +82,8 @@ try:
                     server.login(username,password)
                     msg = "\r\n".join([
                       "Subject: Mensaje de Alerta!!!!!",
-                      "",
-                      "Alerta!!!! Sensor: "+str(sensor_nombre)+ ", Arduino: "+str(arduino)+", valor: " +str(valorMedicion)+", Ubicado: "+ str(arduino_ubicacion),
+                      ""+str(descripcion),
+                      "Alerta!!!! Sensor: "+str(sensor_nombre), "Arduino: "+str(arduino),"Valor: " +str(valorMedicion),"Ubicado: "+ str(arduino_ubicacion),
                       str(hora_de_log)
                       ])
                     server.sendmail(correo_envia,correo_recive,msg)

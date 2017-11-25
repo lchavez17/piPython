@@ -51,6 +51,10 @@ try:
         else:
             num_lineas +=1
 
+    cur_reiniciar_alarma=db.cursor()
+    cur_reiniciar_alarma.execute("UPDATE alarmas_configuracion SET alarma_enviada=0 where id")
+    print "Resetiando Valores de alarmas enviadas"
+    db.commit()
     db.close()
     # os.system('cp /dev/null '+output)
 
