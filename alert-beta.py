@@ -21,25 +21,19 @@ try:
     numero_de_sensores = cur_sensores.execute("SELECT * FROM sensores")
     cur_arduinos= db.cursor()
     numero_de_arduninos = cur_arduinos.execute("SELECT * FROM arduinos")
-    # print "total de arduinos: "+ str(numero_de_arduninos)
     arduinos_actuales=cur_arduinos.fetchall()
     for id_arduino in arduinos_actuales:
         arduino_actual=id_arduino[0]
         arduino_nombre=id_arduino[1]
         arduino_ubicacion=id_arduino[2]
-        # print "Arduinos por id: "+ str(arduino_actual)
         cur_mediciones = db.cursor()
         sentencia_sql_mediciones="SELECT id_sensor,id_arduino,valor FROM mediciones WHERE id_sensor AND id_arduino="+str(arduino_actual)+" ORDER BY id_mediciones DESC LIMIT "+str(numero_de_sensores)
-        # sentencia_sql_mediciones+=str(numero_de_sensores)
         cur_mediciones.execute(sentencia_sql_mediciones)
         valores_sensores = cur_mediciones.fetchall()
         for valor_mediciones in valores_sensores:
             sensor=valor_mediciones[0]
             arduino=valor_mediciones[1]
             valorMedicion = valor_mediciones[2]
-            # print "sensor:"+str(sensor)
-            # print "arduino: "+str(arduino)
-            # print "valor medicion: " + str(valorMedicion)
             cur_alarma = db.cursor()
             sentencia_valores_alarmas="SELECT correo,valor_minimo,valor_maximo,descripcion,alarma_enviada FROM alarmas_configuracion WHERE id_arduino="+str(arduino)+" AND id_sensor="+str(sensor)
             cur_alarma.execute(sentencia_valores_alarmas)
@@ -50,15 +44,11 @@ try:
                 valor_max = alarmas_configuracion[2]
                 descripcion = alarmas_configuracion[3]
                 alarma_enviada=alarmas_configuracion[4]
-                # print "correo de responsable: "+ str(correo)
-                # print "valor minimo: "+ str(valor_min)
-                # print "valor maximo: "+ str(valor_max)
-                if (valorMedicion < valor_min or valorMedicion > valor_max) and alarma_enviada==0:
+                if (valorMedicion < valor_min or valorMedicion > valor_max) and alarma_enviada==0: #validar esto con el maestro
                     cur_sensores.execute("SELECT * FROM sensores WHERE id_sensores="+str(sensor))
                     sensor_actual = cur_sensores.fetchall()
                     for sensor_capturado in sensor_actual:
                         sensor_nombre = sensor_capturado[1]
-
                     print "Enviando alarma a "+ str(correo)
                     print "Arduino: "+ str(arduino)
                     print "sensor: "+str(sensor_nombre)
@@ -67,7 +57,7 @@ try:
                     print "Descripcion: " + str(descripcion)
                     print "_____________________________"
                     cur_insertar_alarma=db.cursor()
-                    cur_insertar_alarma.execute("""INSERT INTO alarmas (id_arduino,nombre_sensor,valor) VALUES(%s,%s,%s)""",(arduino,sensor_nombre,valorMedicion))
+                    cur_insertar_alarma.execute("""INSERT INTO alarmas (id_arduino,nombre_sensor,mensaje,valor) VALUES(%s,%s,%s,%s)""",(arduino,sensor_nombre,descripcion,valorMedicion))
                     cur_actualiza_alarma_enviada=db.cursor()
                     sentencia_alarma_enviada="UPDATE alarmas_configuracion SET alarma_enviada=1 where id_arduino="+str(arduino)+" and id_sensor="+str(sensor)
                     cur_actualiza_alarma_enviada.execute(sentencia_alarma_enviada)
